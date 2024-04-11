@@ -41,7 +41,7 @@ export function Form() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const eventID = fbq.event; 
+    const eventID: string = crypto.randomUUID();
     const eventTime = Math.floor(Date.now() / 1000); // new Date();: 
     const userIp = await getUserIP();
     const message = `
