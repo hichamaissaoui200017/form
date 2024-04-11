@@ -5,6 +5,8 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import * as fbq from "../lib/fpixel";
 const inter = Inter({ subsets: ["latin"] });
+import { FB_PIXEL_ID } from "../lib/fpixel";
+import { NextScript } from "next/document";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -36,7 +38,23 @@ export default function RootLayout({
       }}
     />
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+    </html>
+    <html>
+      <head>
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1`}
+          />
+        </noscript>
+      </head>
+      <body className={inter.className}>
+        {children}
+        <main />
+        <NextScript />
+      </body>
     </html>
     </>
 
