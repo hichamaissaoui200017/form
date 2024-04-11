@@ -55,7 +55,7 @@ export function Form() {
 portfolio / تصاميمك: "${formData.website}"\n
 تخصص التصميم: ${(formData.specialty as string[]).join(', ')}
   `;
-  const email:  string = formData.email;
+  const email: string = Array.isArray(formData.email) ? formData.email[0] : formData.email;
   const messageCompleteRegistration = `{
     "data": [
         {

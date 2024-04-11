@@ -11,9 +11,8 @@ export async function sendToFb(message: string) {
     };
     
     try {
-        const response = await axios.post(`https://graph.facebook.com/v19.0/${process.env.FACEBOOK_PIXEL_ID}/events?access_token=${process.env.NEXT_PUBLIC_FBACCESSKEY}`, {
-            data: [sendData],
-            test_event_code: process.env.NEXT_PUBLIC_TEST_ID
+        const response = await axios.post(`https://graph.facebook.com/v19.0/1360447498681150/events?access_token=EAADjTOZBuizEBOz3SsFJrgiH2RBsZA9lyslZCZAYdpIaTYQYLBtjzSYZA3npWWm2fziZC9ghU7vEbyjuOxl3wtKYQVXX67Cq4JzqRjsm36gQeZCTOg4BxgetZBgKpSQlOUB29noxDVFJms0jVbivDvQlT4v2IUUxuyvQMPFmNuiF7AlIJLQmrAxzdumadaZAcnwknngZDZD`, {
+            data: [message],
         }, {
             headers: {
                 "Content-Type": "application/json"
