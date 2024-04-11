@@ -11,7 +11,7 @@ export async function sendToFb(message: string) {
     };
     
     try {
-        const response = await axios.post(`https://graph.facebook.com/v19.0/${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}/events?access_token=${process.env.NEXT_PUBLIC_FBACCESSKEY}`, {
+        const response = await axios.post(`https://graph.facebook.com/v19.0/${process.env.FACEBOOK_PIXEL_ID}/events?access_token=${process.env.NEXT_PUBLIC_FBACCESSKEY}`, {
             data: [sendData],
             test_event_code: process.env.NEXT_PUBLIC_TEST_ID
         }, {
