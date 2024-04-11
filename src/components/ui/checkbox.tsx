@@ -7,20 +7,22 @@ interface CheckboxProps extends React.ComponentProps<typeof CheckboxPrimitive.Ro
   name: string;
   value: string;
   checked: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: React.FormEventHandler<HTMLButtonElement>;
 }
 
 const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
   ({ name, value, checked, onChange, className, ...props }, ref) => {
     const handleCheckedChange = (isChecked: boolean) => {
-      onChange({
-        target: {
+      const fakeButtonEvent: React.FormEvent<HTMLButtonElement> = {
+        ...new Event('change', { bubbles: true }),
+        currentTarget: {
           name,
           value,
           type: 'checkbox',
           checked: isChecked,
         },
-      } as React.ChangeEvent<HTMLInputElement>);
+      } as unknown as React.FormEvent<HTMLButtonElement>;
+      onChange(fakeButtonEvent);
     };
 
     return (
