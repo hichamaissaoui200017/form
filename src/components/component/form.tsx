@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Noto_Kufi_Arabic} from '@next/font/google'
 import { sendToTelegram } from '@/lib/sendToTelegram';
-import { sendToFb } from '@/lib/sendtofb';
+import { sendToFb } from '@/lib/sendToFb';
 import React, { useState } from 'react';
 import getUserIP from '../../lib/getUserIP';
 import { sha256 } from "js-sha256";
