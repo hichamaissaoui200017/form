@@ -1,8 +1,8 @@
 // lib/sendToTelegram.ts
 import axios from 'axios';
 
-const TELEGRAM_BOT_TOKEN = '7171468484:AAHrIzqSBWAT-zRIlDAWnGZNtd-dw71tWYI';
-const TELEGRAM_CHAT_ID = '-4143007153';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 export async function sendToTelegram(message: string) {
   try {
