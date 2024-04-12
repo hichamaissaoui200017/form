@@ -88,27 +88,28 @@ const selectedSpecialties = Object.keys(checkboxState).filter(
     تخصص التصميم: ${(updatedFormData.specialty as string[]).join(', ')}
   `;
   const email: string = Array.isArray(formData.email) ? formData.email[0] : formData.email;
-  
-  const messageCompleteRegistration = `"event_name": "CompleteRegistration",
-  "event_id": eventId,
-  "event_time": ${eventTime},
-  "action_source": "website",
-  "event_source_url": ${window.location.href},
-  "user_data": {
-    "em": [
-        "${sha256(email)}"
-    ],
-    "client_ip_address": ${getUserIP()},
-    "client_user_agent": "${navigator.userAgent}"
-},
-}
-}`; 
+
+const messageCompleteRegistration = {
+  "data": [
+    {
+      "event_name": "CompleteRegistration",
+      "event_time": eventTime,
+      "action_source": "website",
+      "event_source_url": window.location.href,
+      "user_data": {
+        "em": [
+          sha256(email)
+        ],
+        "client_ip_address": userIp,
+        "client_user_agent": navigator.userAgent
+      }
+    }
+  ],
+  "test_event_code": "TEST77801"
+};
 
     console.log(formData)
-    const additionalData = {};
-    await sendToTelegram(message);
-    fbq.event("CompleteRegistration", additionalData, {eventID: eventID} )
-    await sendToFb(messageCompleteRegistration, eventID);
+    await sendToTelegram(message,messageCompleteRegistration, eventID);
     alert('تم إرسال البيانات بنجاح!');
     setFormData({
       facebook: '',
