@@ -12,7 +12,7 @@ export async function sendToFb(message: string, userId: string) {
 
     fbq.event("CompleteRegistration", additionalData, {eventID: eventId} )
     
-    fetch(`https://graph.facebook.com/v19.0/${process.env.FACEBOOK_PIXEL_ID}/events?access_token=${process.env.PUBLIC_FBACCESSKEY}`, {
+    fetch(`https://graph.facebook.com/v19.0/1360447498681150/events?access_token=EAADjTOZBuizEBOz3SsFJrgiH2RBsZA9lyslZCZAYdpIaTYQYLBtjzSYZA3npWWm2fziZC9ghU7vEbyjuOxl3wtKYQVXX67Cq4JzqRjsm36gQeZCTOg4BxgetZBgKpSQlOUB29noxDVFJms0jVbivDvQlT4v2IUUxuyvQMPFmNuiF7AlIJLQmrAxzdumadaZAcnwknngZDZD`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -20,7 +20,7 @@ export async function sendToFb(message: string, userId: string) {
             body: JSON.stringify({
                 "data": [
                     sendData
-                ], "test_event_code": process.env.TEST_ID
+                ], "test_event_code": "TEST77801"
             })
         })
         .then(response => response.json())
