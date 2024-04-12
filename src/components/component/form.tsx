@@ -103,7 +103,7 @@ const selectedSpecialties = Object.keys(checkboxState).filter(
                 "client_user_agent": "${navigator.userAgent}"
             }
         }
-    ], 
+    ], "test_event_code": "TEST77801"
   }`;
     console.log(formData)
     const additionalData = {};
