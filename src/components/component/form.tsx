@@ -42,7 +42,7 @@ const [formData, setFormData] = useState<{
   const initialCheckboxState = {
     'تصميم UI/UX': false,
     'تصميم الجرافيك': false,
-    'تصميم الويب': false,
+    'مطور ويب': false,
     'تصميم المنتج و التفليف': false,
     'الرسم التوضيحي (الإليستريشن)': false,
     'رسوم متحركة (موشن جرافيكس)': false,
@@ -199,15 +199,15 @@ const messageCompleteRegistration = {
   <Checkbox
     id="web"
     name="specialty"
-    value="تصميم الويب"
-    checked={checkboxState['تصميم الويب']}
-    onCheckedChange={(checked) => handleCheckboxChange('تصميم الويب', checked)}
+    value="مطور ويب"
+    checked={checkboxState['مطور ويب']}
+    onCheckedChange={(checked) => handleCheckboxChange('مطور ويب', checked)}
   />
   <Label
     className="ml-2 text-base font-medium text-gray-900 dark:text-gray-400"
     htmlFor="web"
   >
-    تصميم الويب
+    مطور ويب
   </Label>
 </div>
 <div className="flex items-center space-x-2">
