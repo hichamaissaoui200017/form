@@ -77,7 +77,7 @@ const selectedSpecialties = Object.keys(checkboxState).filter(
 
   // Now use updatedFormData instead of formData
   const eventTime = Math.floor(Date.now() / 1000);
-  const userIp = await getUserIP();
+  const userIp: string = (await getUserIP()).toString();
   const message = `
     profile: ${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}
     IP: ${userIp}
@@ -101,7 +101,7 @@ const messageCompleteRegistration = {
         "em": [
           sha256(email)
         ],
-        "client_ip_address": await getUserIP(),
+        "client_ip_address": userIp,
         "client_user_agent": navigator.userAgent
       }
     }
