@@ -12,12 +12,13 @@ import { sha256 } from "js-sha256";
 import * as fbq from "../../lib/fpixel";
 const additionalData = {};
 const eventID: string = crypto.randomUUID();
+const eventID2: string = crypto.randomUUID();
 const rubik = Noto_Kufi_Arabic({ subsets: ['arabic'],
  weight:['500','600','700'],
  })
  export function Form() {
   useEffect(() => {
-    pageview(eventID);
+    pageview(eventID2);
   }, []);
 const [formData, setFormData] = useState<{
   facebook: string;
@@ -97,6 +98,7 @@ const messageCompleteRegistration = {
       "event_time": eventTime,
       "action_source": "website",
       "event_source_url": window.location.href,
+      "event_id": eventID,
       "user_data": {
         "em": [
           sha256(email)
@@ -108,42 +110,6 @@ const messageCompleteRegistration = {
   ],
   "test_event_code": "TEST77801"
 };
-
-
-
-const ViewContent = {
-  "data": [
-    {
-      "event_name": "ViewContent",
-      "event_time": Math.floor(Date.now() / 1000),
-      "action_source": "website",
-      "event_source_url": window.location.href,
-      "user_data": {
-        "client_ip_address": userIp,
-        "client_user_agent": navigator.userAgent
-      }
-    }
-  ],
-  "test_event_code": "TEST77801"
-};
-fetch(`https://graph.facebook.com/v19.0/1360447498681150/events?access_token=EAADjTOZBuizEBO9kSjtyrFOCr0usK23PspquJKTbZCbYEPXoWiTbaw4m8QXZAVkUGmDjFZCCi8bFngg2LEDt5drUFP12Kv33ORkybXDFd7X2KSZAySR9NWj56nwFF5pzsZAc7ywoLckzLXest0UhtldkiRkhFvizfhxRmMyw1IcS0QvsCWhLfPWMaBHZATNJR86KgZDZD`, {
-  method: "POST",
-  headers: {
-      "Content-Type": "application/json"
-  },
-  body: JSON.stringify(ViewContent)
-})
-.then(response => {
-  if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return response.json();
-})
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));
-fbq.event("ViewContent", additionalData, {eventID: eventID} )
-
-
 
     console.log(formData)
     await sendToTelegram(message,messageCompleteRegistration, eventID);

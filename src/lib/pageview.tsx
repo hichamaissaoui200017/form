@@ -10,6 +10,7 @@ const ViewContent = {
         "event_name": "ViewContent",
         "event_time": Math.floor(Date.now() / 1000),
         "action_source": "website",
+        "event_id": userId,
         "event_source_url": window.location.href,
         "user_data": {
           "client_ip_address": await getUserIP(),
@@ -34,5 +35,4 @@ const ViewContent = {
   })
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
-  fbq.event("ViewContent", additionalData, {eventID: userId} ) 
 }
