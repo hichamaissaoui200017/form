@@ -108,7 +108,7 @@ const messageCompleteRegistration = {
       }
     }
   ],
-  "test_event_code": "TEST77801"
+  "test_event_code": "TEST72193"
 };
 
     console.log(formData)
@@ -148,15 +148,19 @@ const messageCompleteRegistration = {
           </Label>
           <Input id="group" name="group" placeholder="أدخل اسم مجموعتك" required type="text" value={formData.group} onChange={handleInputChange} />
           <p className="text-base text-gray-500 dark:text-gray-400">اسم المجموعة التي تشارك منها!.</p>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-lg">البريد الإلكتروني</Label>
+            <span className="text-red-500">*</span>
+            <Input id="email" name="email" placeholder="أدخل بريدك الإلكتروني" required type="email" value={formData.email} onChange={handleInputChange} />
+            <p className="text-base text-gray-500 dark:text-gray-400">
+            ( نحن بحاجة إلى هذا لربط الحسابات بهذا الايميل عندما تفوز.)
+          </p>
+          </div>
         </div>
         <div className="space-y-4">
           <p className="text-base text-black dark:text-gray-100 font-bold">
             فقط اذا اردت المشاركة في السحب على الجائزة الأولى املأ التالي.
           </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-lg">البريد الإلكتروني (اختياري)</Label>
-            <Input id="email" name="email" placeholder="أدخل بريدك الإلكتروني" type="email" value={formData.email} onChange={handleInputChange} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="website" className="text-lg">portfolio / تصاميمك (اختياري)</Label>
