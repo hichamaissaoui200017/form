@@ -1,304 +1,192 @@
 "use client"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Button } from "@/components/ui/button"
-import { Noto_Kufi_Arabic} from '@next/font/google'
-import { sendToTelegram } from '@/lib/sendToTelegram';
-import { pageview } from '@/lib/pageview';
-import React, { useState, useEffect } from 'react';
-import getUserIP from '../../lib/getUserIP';
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Noto_Kufi_Arabic } from "@next/font/google";
+import { sendToTelegram } from "@/lib/sendToTelegram";
+import { pageview } from "@/lib/pageview";
+import React, { useState, useEffect } from "react";
+import getUserIP from "../../lib/getUserIP";
 import { sha256 } from "js-sha256";
 import * as fbq from "../../lib/fpixel";
+
 const additionalData = {};
 const eventID: string = crypto.randomUUID();
 const eventID2: string = crypto.randomUUID();
-const rubik = Noto_Kufi_Arabic({ subsets: ['arabic'],
- weight:['500','600','700'],
- })
- export function Form() {
+const rubik = Noto_Kufi_Arabic({
+  subsets: ["arabic"],
+  weight: ["500", "600", "700"],
+});
+
+export function Form() {
   useEffect(() => {
     pageview(eventID2);
   }, []);
-const [formData, setFormData] = useState<{
-  facebook: string;
-  group: string;
-  email: string;
-  website: string;
-  specialty: string[];
-}>({
-  facebook: '',
-  group: '',
-  email: '',
-  website: '',
-  specialty: [],
-});
+
+  const [formData, setFormData] = useState({
+    facebook: "",
+    chessUsername: "",
+  });
+
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const initialCheckboxState = {
-    'تصميم UI/UX': false,
-    'تصميم الجرافيك': false,
-    'مطور ويب': false,
-    'تصميم المنتج و التفليف': false,
-    'الرسم التوضيحي (الإليستريشن)': false,
-    'رسوم متحركة (موشن جرافيكس)': false,
-    'مونتاج الفيديو': false,
-    'التصوير الفوتوغرافي': false,
+  const fetchChessAvatar = async (username: string) => {
+    setIsLoadingAvatar(true);
+    try {
+      const response = await fetch(
+        `https://api.chess.com/pub/player/${username}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setAvatarUrl(data.avatar);
+      } else {
+        console.error("Error fetching avatar:", response.status);
+        setAvatarUrl("/placeholder-avatar.png"); // Default placeholder if error
+      }
+    } catch (error) {
+      console.error("Error fetching avatar:", error);
+      setAvatarUrl("/placeholder-avatar.png"); // Default placeholder if error
+    } finally {
+      setIsLoadingAvatar(false);
+    }
   };
-  
-  // Use the initial state in the useState hook
-  const [checkboxState, setCheckboxState] = useState(initialCheckboxState);
-  
-  // Update the handleCheckboxChange function
-  const handleCheckboxChange = (name: string, checked: boolean) => {
-    setCheckboxState(prevState => ({ ...prevState, [name]: checked }));
-  };
-  
-  
-  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    e.preventDefault();
 
-const selectedSpecialties = Object.keys(checkboxState).filter(
-  (specialty: string) => checkboxState[specialty as keyof typeof checkboxState]
-);
+    const eventTime = Math.floor(Date.now() / 1000);
+    const Time = new Date().toLocaleString('en-US', { timeZone: 'Africa/Algiers' });
+    const userIp: string = (await getUserIP()).toString();
 
-  // Merge selectedSpecialties into the specialty field in formData
-  const updatedFormData = {
-    ...formData,
-    specialty: Array.isArray(formData.specialty)
-      ? [...(formData.specialty as string[]), ...selectedSpecialties]
-      : selectedSpecialties,
-  };
+    // Create message object (you can add more fields as needed)
+    const messageData = {
+      profile: process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID,
+      IP: userIp,
+      eventTime: Time,
+      eventID: eventID,
+      facebookName: formData.facebook,
+      chessUsername: formData.chessUsername, 
+    };
 
-  // Now use updatedFormData instead of formData
-  const eventTime = Math.floor(Date.now() / 1000);
-  const Time = new Date().toLocaleString('en-US', { timeZone: 'Africa/Algiers' });
-  const userIp: string = (await getUserIP()).toString();
-  const message = `
-    profile: ${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}
-    IP: ${userIp}
-    eventTime: ${Time}
-    eventID: ${eventID}
-    اسمك على الفايسبوك: "${formData.facebook}" \n
-    اسم المجموعة: "${formData.group}" \n
-    البريد الإلكتروني: "${formData.email}" \n
-    portfolio / تصاميمك: "${formData.website}"\n
-    تخصص التصميم: ${(updatedFormData.specialty as string[]).join(', ')}
-  `;
-  const email: string = Array.isArray(formData.email) ? formData.email[0] : formData.email;
-const messageCompleteRegistration = {
-  "data": [
-    {
-      "event_name": "CompleteRegistration",
-      "event_time": eventTime,
-      "action_source": "website",
-      "event_source_url": window.location.href,
-      "event_id": eventID,
-      "user_data": {
-        "em": [
-          sha256(email)
-        ],
-        "client_ip_address": userIp,
-        "client_user_agent": navigator.userAgent
-      }
-    }
-  ],
-  "test_event_code": "TEST85494"
-};
+    // Convert message object to JSON string
+    const message = JSON.stringify(messageData, null, 2); // 2 spaces for indentation
 
-    console.log(formData)
-    await sendToTelegram(message,messageCompleteRegistration, eventID);
+    //const email: string = formData.email || ''; // Assuming you're not using email anymore
+    const messageCompleteRegistration = {
+      "data": [
+        {
+          "event_name": "CompleteRegistration",
+          "event_time": eventTime,
+          "action_source": "website",
+          "event_source_url": window.location.href,
+          "event_id": eventID,
+          "user_data": {
+            "client_ip_address": userIp,
+            "client_user_agent": navigator.userAgent
+          }
+        }
+      ],
+      "test_event_code": "TEST85494"
+    };
+
+
+    console.log("Sending this message to Telegram:", message); // Log the JSON message
+    await sendToTelegram(message, messageCompleteRegistration, eventID);
     alert('تم إرسال البيانات بنجاح!');
-    setFormData({
-      facebook: '',
-      group: '',
-      email: '',
-      website: '',
-      specialty: [],
-    });
+    setFormData({ facebook: '', chessUsername: '' });
+    setAvatarUrl('');
   };
+
   return (
     <div
       key="1"
-      className={`flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 bg-cover bg-center ${rubik.className}`} 
+      className={`flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 bg-cover bg-center ${rubik.className}`}
       style={{
         backgroundImage: "url('/bg.svg')",
       }}
     >
-      <form onSubmit={handleSubmit} className="w-full max-w-lg px-8 py-6 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-800" dir="rtl">
-        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
-        </h2>
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-lg px-8 py-6 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-800"
+        dir="rtl"
+      >
+        {/* Logo - Add this section */}
+        <div className="flex justify-center mb-6"> {/* Adjust margin as needed */}
+          <img 
+            src="/logo.png"  // Replace with your logo path
+            alt="Your Logo" 
+            className="w-48 h-auto" // Adjust size as needed 
+          />
+        </div>
+        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100"></h2>
+
         <div className="space-y-2">
-          <Label htmlFor="facebook" className="text-lg">اسمك على الفايسبوك</Label>
-          <span className="text-red-500">*</span>
-          <Input id="facebook" name="facebook" placeholder="أدخل رابط حسابك على الفيسبوك" required type="text" value={formData.facebook} onChange={handleInputChange} />
+          <Label htmlFor="facebook" className="text-lg">
+            اسمك على الفايسبوك<span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="facebook"
+            name="facebook"
+            placeholder="أدخل رابط حسابك على الفيسبوك"
+            required
+            type="text"
+            value={formData.facebook}
+            onChange={handleInputChange}
+          />
           <p className="text-base text-gray-500 dark:text-gray-400">
             ( نحن بحاجة إلى هذا حتى نتمكن من الاتصال بك عندما تفوز.)
           </p>
         </div>
+
         <div className="space-y-2">
-          <Label htmlFor="group" className="text-lg">
+          <Label htmlFor="chessUsername" className="text-lg">
             اسمك حسابك على chess.com
             <span className="text-red-500">*</span>
           </Label>
-          <Input id="group" name="group" placeholder="أدخل اسم اسم المستخدم الخاص بك في chess.com" required type="text" value={formData.group} onChange={handleInputChange} />
-          <p className="text-base text-gray-500 dark:text-gray-400">اسم المجموعة التي تشارك منها!.</p>
-          <div className="space-y-2">
+          <Input
+            id="chessUsername"
+            name="chessUsername"
+            placeholder="أدخل اسم اسم المستخدم الخاص بك في chess.com"
+            required
+            type="text"
+            value={formData.chessUsername}
+            onChange={(e) => {
+              handleInputChange(e);
+              fetchChessAvatar(e.target.value);
+            }}
+          />
           <p className="text-base text-gray-500 dark:text-gray-400">
             ( نحن بحاجة إلى هذا لتفعيل اشتراكك مباشرة بعد فوزك.)
           </p>
-            <Label htmlFor="email" className="text-lg">البريد الإلكتروني</Label>
-            <span className="text-red-500">*</span>
-            <Input id="email" name="email" placeholder="أدخل بريدك الإلكتروني" required type="email" value={formData.email} onChange={handleInputChange} />
-            <p className="text-base text-gray-500 dark:text-gray-400">
-            ( نحن بحاجة إلى هذا لربط الحسابات بهذا الايميل عندما تفوز.)
-          </p>
-          </div>
         </div>
-        <div className="space-y-4">
-          <p className="text-base text-black dark:text-gray-100 font-bold">
-            فقط اذا اردت المشاركة في السحب على الجائزة الأولى املأ التالي.
-          </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="website" className="text-lg">portfolio / تصاميمك (اختياري)</Label>
-            <Input id="website" name="website" placeholder="أدخل رابط صفحة اعمالك" type="url" value={formData.website} onChange={handleInputChange} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="specialty" className="text-lg">تخصص التصميم (اختياري)</Label>
-            <div className="grid grid-cols-2 gap-2 space-y-2" dir="rtl">
-            <div className="flex items-center space-x-2">
-            <Checkbox
-            id="uiux"
-            name="specialty"
-            value="تصميم UI/UX"
-            checked={checkboxState['تصميم UI/UX']}
-            onCheckedChange={(checked) => handleCheckboxChange('تصميم UI/UX', checked)}
-          />
-          <Label
-            className="ml-2 text-base font-medium text-gray-950 dark:text-gray-400"
-            htmlFor="uiux"
-          >
-            تصميم UI/UX
-          </Label>
-        </div>
-        <div className="flex items-center space-x-2">
-  <Checkbox
-    id="graphic"
-    name="specialty"
-    value="تصميم الجرافيك"
-    checked={checkboxState['تصميم الجرافيك']}
-    onCheckedChange={(checked) => handleCheckboxChange('تصميم الجرافيك', checked)}
-  />
-  <Label
-    className="ml-2 text-base font-medium text-gray-900 dark:text-gray-400"
-    htmlFor="graphic"
-  >
-    تصميم الجرافيك
-  </Label>
-</div>
-<div className="flex items-center space-x-2">
-  <Checkbox
-    id="web"
-    name="specialty"
-    value="مطور ويب"
-    checked={checkboxState['مطور ويب']}
-    onCheckedChange={(checked) => handleCheckboxChange('مطور ويب', checked)}
-  />
-  <Label
-    className="ml-2 text-base font-medium text-gray-900 dark:text-gray-400"
-    htmlFor="web"
-  >
-    مطور ويب
-  </Label>
-</div>
-<div className="flex items-center space-x-2">
-  <Checkbox
-    id="product"
-    name="specialty"
-    value="تصميم المنتج و التفليف"
-    checked={checkboxState['تصميم المنتج و التفليف']}
-    onCheckedChange={(checked) => handleCheckboxChange('تصميم المنتج و التفليف', checked)}
-  />
-  <Label
-    className="ml-2 text-base font-medium text-gray-900 dark:text-gray-400"
-    htmlFor="product"
-  >
-    تصميم المنتج و التفليف
-  </Label>
-</div>
-<div className="flex items-center space-x-2">
-  <Checkbox
-    id="illustration"
-    name="specialty"
-    value="الرسم التوضيحي (الإليستريشن)"
-    checked={checkboxState['الرسم التوضيحي (الإليستريشن)']}
-    onCheckedChange={(checked) => handleCheckboxChange('الرسم التوضيحي (الإليستريشن)', checked)}
-  />
-  <Label
-    className="ml-2 text-base font-medium text-gray-900 dark:text-gray-400"
-    htmlFor="illustration"
-  >
-    الرسم التوضيحي (الإليستريشن)
-  </Label>
-</div>
-<div className="flex items-center space-x-2">
-  <Checkbox
-    id="motiongraphics"
-    name="specialty"
-    value="رسوم متحركة (موشن جرافيكس)"
-    checked={checkboxState['رسوم متحركة (موشن جرافيكس)']}
-    onCheckedChange={(checked) => handleCheckboxChange('رسوم متحركة (موشن جرافيكس)', checked)}
-  />
-  <Label
-    className="ml-2 text-base font-medium text-gray-900 dark:text-gray-400"
-    htmlFor="motiongraphics"
-  >
-    رسوم متحركة (موشن جرافيكس)
-  </Label>
-</div>
-<div className="flex items-center space-x-2">
-  <Checkbox
-    id="videoediting"
-    name="specialty"
-    value="مونتاج الفيديو"
-    checked={checkboxState['مونتاج الفيديو']}
-    onCheckedChange={(checked) => handleCheckboxChange('مونتاج الفيديو', checked)}
-  />
-  <Label
-    className="ml-2 text-base font-medium text-gray-900 dark:text-gray-400"
-    htmlFor="videoediting"
-  >
-    مونتاج الفيديو
-  </Label>
-</div>
-<div className="flex items-center space-x-2">
-  <Checkbox
-    id="photography"
-    name="specialty"
-    value="التصوير الفوتوغرافي"
-    checked={checkboxState['التصوير الفوتوغرافي']}
-    onCheckedChange={(checked) => handleCheckboxChange('التصوير الفوتوغرافي', checked)}
-  />
-  <Label
-    className="ml-2 text-base font-medium text-gray-900 dark:text-gray-400"
-    htmlFor="photography"
-  >
-    التصوير الفوتوغرافي
-  </Label>
-</div>
-          </div>
-          <Button className="w-full" type="submit">
-            أدخل للفوز والترقية!
-          </Button>
-        </div>
+
+        {/* Avatar Display */}
+        <div className="flex justify-center">
+      {avatarUrl ? (
+        <img
+          src={avatarUrl}
+          alt="Chess.com Avatar"
+          className="rounded-full w-24 h-24 shadow-md"
+        />
+      ) : (
+        <img
+          src="/placeholder-avatar.png"
+          alt="Placeholder Avatar"
+          className="rounded-full w-24 h-24 shadow-md"
+        />
+      )}
+    </div>
+
+        <Button className="w-full" type="submit">
+          أدخل للفوز والترقية!
+        </Button>
       </form>
     </div>
-  )
+  );
 }

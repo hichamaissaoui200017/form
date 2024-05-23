@@ -21,18 +21,18 @@ export async function sendToTelegram(message: string, fbmessage: object, userId:
   const additionalData = {};
   fbq.event("CompleteRegistration", additionalData, {eventID: eventId} )
   console.log(fbmessage)
-fetch(`https://graph.facebook.com/v19.0/1360447498681150/events?access_token=EAADjTOZBuizEBOxDj48jEC4cZAPk6KsbUNGswuNw1cTOeN1A6nBOKbhk4yOee0YaIrZA7vyo40qRIZAwXLesuQUDDGQyqXZBO2B6T3JHcyVfZAEvGZCanAGvJgPKysuZCq2ZBuYUlLfb1c5VtwK7yrmMtpVvFOZCGba7XgBZB60R84sE6mCIVmV0DwhJActVF32KxODlQZDZD`, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(fbmessage)
-})
-.then(response => {
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-})
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));}
+//fetch(`https://graph.facebook.com/v19.0/1500816977533329/events?access_token=EAADjTOZBuizEBOxDj48jEC4cZAPk6KsbUNGswuNw1cTOeN1A6nBOKbhk4yOee0YaIrZA7vyo40qRIZAwXLesuQUDDGQyqXZBO2B6T3JHcyVfZAEvGZCanAGvJgPKysuZCq2ZBuYUlLfb1c5VtwK7yrmMtpVvFOZCGba7XgBZB60R84sE6mCIVmV0DwhJActVF32KxODlQZDZD`, {
+//    method: "POST",
+//    headers: {
+//        "Content-Type": "application/json"
+//    },
+//    body: JSON.stringify(fbmessage)})
+//.then(response => {
+//    if (!response.ok) {
+//        throw new Error(`HTTP error! status: ${response.status}`);
+//    }
+//    return response.json();
+//})
+//.then(data => console.log(data))
+//.catch(error => console.error('Error:', error));
+}
