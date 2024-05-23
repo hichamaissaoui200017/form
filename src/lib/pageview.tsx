@@ -18,7 +18,7 @@ const ViewContent = {
         }
       }
     ],
-    "test_event_code": "TEST72193"
+    "test_event_code": "TEST85494"
   };
   fetch(`https://graph.facebook.com/v19.0/1360447498681150/events?access_token=EAADjTOZBuizEBO9kSjtyrFOCr0usK23PspquJKTbZCbYEPXoWiTbaw4m8QXZAVkUGmDjFZCCi8bFngg2LEDt5drUFP12Kv33ORkybXDFd7X2KSZAySR9NWj56nwFF5pzsZAc7ywoLckzLXest0UhtldkiRkhFvizfhxRmMyw1IcS0QvsCWhLfPWMaBHZATNJR86KgZDZD`, {
     method: "POST",

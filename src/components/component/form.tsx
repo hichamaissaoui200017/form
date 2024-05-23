@@ -78,11 +78,12 @@ const selectedSpecialties = Object.keys(checkboxState).filter(
 
   // Now use updatedFormData instead of formData
   const eventTime = Math.floor(Date.now() / 1000);
+  const Time = new Date().toLocaleString('en-US', { timeZone: 'Africa/Algiers' });
   const userIp: string = (await getUserIP()).toString();
   const message = `
     profile: ${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}
     IP: ${userIp}
-    eventTime: ${eventTime}
+    eventTime: ${Time}
     eventID: ${eventID}
     اسمك على الفايسبوك: "${formData.facebook}" \n
     اسم المجموعة: "${formData.group}" \n
@@ -108,7 +109,7 @@ const messageCompleteRegistration = {
       }
     }
   ],
-  "test_event_code": "TEST72193"
+  "test_event_code": "TEST85494"
 };
 
     console.log(formData)
