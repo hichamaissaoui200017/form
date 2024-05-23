@@ -144,12 +144,15 @@ const messageCompleteRegistration = {
         </div>
         <div className="space-y-2">
           <Label htmlFor="group" className="text-lg">
-            اسم المجموعة
+            اسمك حسابك على chess.com
             <span className="text-red-500">*</span>
           </Label>
-          <Input id="group" name="group" placeholder="أدخل اسم مجموعتك" required type="text" value={formData.group} onChange={handleInputChange} />
+          <Input id="group" name="group" placeholder="أدخل اسم اسم المستخدم الخاص بك في chess.com" required type="text" value={formData.group} onChange={handleInputChange} />
           <p className="text-base text-gray-500 dark:text-gray-400">اسم المجموعة التي تشارك منها!.</p>
           <div className="space-y-2">
+          <p className="text-base text-gray-500 dark:text-gray-400">
+            ( نحن بحاجة إلى هذا لتفعيل اشتراكك مباشرة بعد فوزك.)
+          </p>
             <Label htmlFor="email" className="text-lg">البريد الإلكتروني</Label>
             <span className="text-red-500">*</span>
             <Input id="email" name="email" placeholder="أدخل بريدك الإلكتروني" required type="email" value={formData.email} onChange={handleInputChange} />
