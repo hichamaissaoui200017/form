@@ -92,7 +92,7 @@ export function Form() {
           }
         }
       ],
-      "test_event_code": "TEST85494"
+      "test_event_code": "TEST81446" 
     };
 
 
@@ -182,7 +182,9 @@ export function Form() {
         />
       )}
     </div>
-
+    <p className="text-base text-gray-500 dark:text-gray-400">
+            ( لا تنسى ترك تعليق على المنشور.)
+          </p>
         <Button className="w-full" type="submit">
           أدخل للفوز والترقية!
         </Button>
