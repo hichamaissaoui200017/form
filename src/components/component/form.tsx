@@ -101,6 +101,7 @@ export function Form() {
     alert('تم إرسال البيانات بنجاح!');
     setFormData({ facebook: '', chessUsername: '' });
     setAvatarUrl('');
+    window.location.href = 'https://www.facebook.com/EliteOfferz'; 
   };
 
   return (
