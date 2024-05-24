@@ -2,7 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Noto_Kufi_Arabic } from "@next/font/google";
+import { Noto_Kufi_Arabic } from "next/font/google";
 import { sendToTelegram } from "@/lib/sendToTelegram";
 import { pageview } from "@/lib/pageview";
 import React, { useState, useEffect } from "react";

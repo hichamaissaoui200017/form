@@ -7,7 +7,7 @@ import * as fbq from "../lib/fpixel";
 const inter = Inter({ subsets: ["latin"] });
 import { FB_PIXEL_ID } from "../lib/fpixel";
 export const metadata: Metadata = {
-  title: "wining form",
+  title: "chess winners form",
   description: "a form for our frineds",
 };
 
