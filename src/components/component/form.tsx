@@ -7,10 +7,10 @@ import { sendToTelegram } from "@/lib/sendToTelegram";
 import { pageview } from "@/lib/pageview";
 import React, { useState, useEffect } from "react";
 import getUserIP from "../../lib/getUserIP";
-import { sha256 } from "js-sha256";
-import * as fbq from "../../lib/fpixel";
+//import { sha256 } from "js-sha256";
+//import * as fbq from "../../lib/fpixel";
 
-const additionalData = {};
+//const additionalData = {};
 const eventID: string = crypto.randomUUID();
 const eventID2: string = crypto.randomUUID();
 const rubik = Noto_Kufi_Arabic({

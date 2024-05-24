@@ -3,6 +3,7 @@ import getUserIP from './getUserIP';
 import * as fbq from "./fpixel";
 export async function pageview(userId: string) {
 const additionalData = {};
+fbq.event("ViewContent", additionalData, {eventID: userId} )
 const ViewContent = {
   "data": [
     {
@@ -19,7 +20,6 @@ const ViewContent = {
   ],
   "test_event_code": "TEST81446"
 };
-fbq.event(ViewContent, additionalData, {eventID: userId} )
   fetch(`https://graph.facebook.com/v20.0/1500816977533329/events?access_token=EAADjTOZBuizEBOZBiXCZAMOT3Yaj0TL09BS9nBAr4IRWa24abUQfF3pEYbqaea2tRrINrHC9EO22zlo8LkNm51EHzFVldZBLfGbh3u7V5lXmpi2p8YsAZBheYs2mKpvROxmRWj4d4JT0kZAkcJVAmBZBeANJOuVJLnxNqSySIdP97fzus9DuafOvX9P69ga5MwapwZDZD`, {
     method: "POST",
     headers: {
