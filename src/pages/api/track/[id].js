@@ -23,8 +23,8 @@ export default async function handler(req, res) {
       console.log('Connected to database');
       
       const upsertQuery = `
-        INSERT INTO message_opens (username, open_time)
-        VALUES ($1, NOW())
+        INSERT INTO message_opens (username, open_time, open_count)
+        VALUES ($1, NOW(), 1)
         ON CONFLICT (username)
         DO UPDATE SET 
           open_time = NOW(), 
