@@ -20,13 +20,16 @@ export default async function handler(req, res) {
   } else {
     try {
       const client = await pool.connect();
+      console.log('Connected to database');
       
       // First, check if the message exists
       const checkQuery = `
         SELECT * FROM messages 
         WHERE message_id = $1 AND username = $2
       `;
+      console.log('Executing check query:', checkQuery, [message_id, username]);
       const checkResult = await client.query(checkQuery, [message_id, username]);
+      console.log('Check query result:', checkResult.rows);
       
       if (checkResult.rows.length === 0) {
         // If the message doesn't exist, insert a new record
@@ -34,8 +37,9 @@ export default async function handler(req, res) {
           INSERT INTO messages (session_id, message_id, username, sent_time, read_time, read_count)
           VALUES ($1, $2, $3, NOW(), NOW(), 1)
         `;
-        await client.query(insertQuery, [session_id || 'unknown_session', message_id, username]);
-        console.log(`Inserted new message record for ${message_id}`);
+        console.log('Executing insert query:', insertQuery, [session_id || 'unknown_session', message_id, username]);
+        const insertResult = await client.query(insertQuery, [session_id || 'unknown_session', message_id, username]);
+        console.log('Insert query result:', insertResult);
       } else {
         // If the message exists, update it
         const updateQuery = `
@@ -43,13 +47,14 @@ export default async function handler(req, res) {
           SET read_time = COALESCE(read_time, NOW()), read_count = read_count + 1
           WHERE message_id = $1 AND username = $2
         `;
-        const result = await client.query(updateQuery, [message_id, username]);
-        console.log(`Updated read status. Rows affected: ${result.rowCount}`);
+        console.log('Executing update query:', updateQuery, [message_id, username]);
+        const updateResult = await client.query(updateQuery, [message_id, username]);
+        console.log('Update query result:', updateResult);
       }
       
       client.release();
     } catch (error) {
-      console.error('Error updating read status:', error);
+      console.error('Error in tracking:', error);
     }
   }
 
