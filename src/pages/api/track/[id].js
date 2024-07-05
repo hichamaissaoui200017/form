@@ -22,35 +22,19 @@ export default async function handler(req, res) {
       const client = await pool.connect();
       console.log('Connected to database');
       
-      // First, check if the message exists
-      const checkQuery = `
-        SELECT * FROM messages 
-        WHERE message_id = $1 AND username = $2
+      const upsertQuery = `
+        INSERT INTO messages (session_id, message_id, username, sent_time, read_time, read_count)
+        VALUES ($1, $2, $3, NOW(), NOW(), 1)
+        ON CONFLICT (message_id)
+        DO UPDATE SET 
+          read_time = NOW(), 
+          read_count = messages.read_count + 1,
+          username = EXCLUDED.username,
+          session_id = EXCLUDED.session_id
       `;
-      console.log('Executing check query:', checkQuery, [message_id, username]);
-      const checkResult = await client.query(checkQuery, [message_id, username]);
-      console.log('Check query result:', checkResult.rows);
-      
-      if (checkResult.rows.length === 0) {
-        // If the message doesn't exist, insert a new record
-        const insertQuery = `
-          INSERT INTO messages (session_id, message_id, username, sent_time, read_time, read_count)
-          VALUES ($1, $2, $3, NOW(), NOW(), 1)
-        `;
-        console.log('Executing insert query:', insertQuery, [session_id || 'unknown_session', message_id, username]);
-        const insertResult = await client.query(insertQuery, [session_id || 'unknown_session', message_id, username]);
-        console.log('Insert query result:', insertResult);
-      } else {
-        // If the message exists, update it
-        const updateQuery = `
-          UPDATE messages
-          SET read_time = COALESCE(read_time, NOW()), read_count = read_count + 1
-          WHERE message_id = $1 AND username = $2
-        `;
-        console.log('Executing update query:', updateQuery, [message_id, username]);
-        const updateResult = await client.query(updateQuery, [message_id, username]);
-        console.log('Update query result:', updateResult);
-      }
+      console.log('Executing upsert query:', upsertQuery, [session_id || 'unknown_session', message_id, username]);
+      const upsertResult = await client.query(upsertQuery, [session_id || 'unknown_session', message_id, username]);
+      console.log('Upsert query result:', upsertResult);
       
       client.release();
     } catch (error) {

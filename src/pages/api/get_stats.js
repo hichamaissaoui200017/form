@@ -12,7 +12,7 @@ export default async function handler(req, res) {
       const client = await pool.connect();
       const query = `
       SELECT 
-        session_id,
+        COALESCE(session_id, 'unknown_session') as session_id,
         COUNT(*) as total_messages,
         COUNT(CASE WHEN read_time IS NOT NULL THEN 1 END) as read_messages,
         MIN(sent_time) as session_start,
@@ -20,10 +20,10 @@ export default async function handler(req, res) {
         ARRAY_AGG(DISTINCT username) as users,
         ARRAY_REMOVE(ARRAY_AGG(DISTINCT CASE WHEN read_time IS NOT NULL THEN username END), NULL) as users_who_read
       FROM messages
-      GROUP BY session_id
+      GROUP BY COALESCE(session_id, 'unknown_session')
       ORDER BY session_start DESC
     `;
-    
+        
       
       console.log('Executing query:', query);
       const result = await client.query(query);
