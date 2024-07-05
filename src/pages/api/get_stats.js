@@ -18,7 +18,7 @@ export default async function handler(req, res) {
           MIN(sent_time) as session_start,
           MAX(COALESCE(read_time, sent_time)) as session_end,
           ARRAY_AGG(DISTINCT username) as users,
-          ARRAY_AGG(DISTINCT CASE WHEN read_time IS NOT NULL THEN username END) - ARRAY[NULL] as users_who_read
+          ARRAY_REMOVE(ARRAY_AGG(DISTINCT CASE WHEN read_time IS NOT NULL THEN username END), NULL) as users_who_read
         FROM messages
         GROUP BY session_id
         ORDER BY session_start DESC
