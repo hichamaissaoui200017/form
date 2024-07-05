@@ -1,4 +1,4 @@
-// get_stats.js
+// pages/api/get_stats.js
 
 const { Pool } = require('pg');
 
@@ -10,23 +10,6 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const client = await pool.connect();
-      console.log('Connected to database');
-
-      // Test query
-      const testQuery = 'SELECT NOW()';
-      const testResult = await client.query(testQuery);
-      console.log('Test query result:', testResult.rows);
-
-      // Check if table exists
-      const tableCheckQuery = "SELECT to_regclass('public.messages')";
-      const tableCheckResult = await client.query(tableCheckQuery);
-      console.log('Table check result:', tableCheckResult.rows);
-
-      // Check if there's data in the table
-      const dataCheckQuery = 'SELECT COUNT(*) FROM messages';
-      const dataCheckResult = await client.query(dataCheckQuery);
-      console.log('Data check result:', dataCheckResult.rows);
-
       const query = `
         SELECT 
           session_id,
@@ -35,7 +18,7 @@ export default async function handler(req, res) {
           MIN(sent_time) as session_start,
           MAX(COALESCE(read_time, sent_time)) as session_end,
           ARRAY_AGG(DISTINCT username) as users,
-          ARRAY_AGG(DISTINCT CASE WHEN read_time IS NOT NULL THEN username END) as users_who_read
+          ARRAY_AGG(DISTINCT CASE WHEN read_time IS NOT NULL THEN username END) - ARRAY[NULL] as users_who_read
         FROM messages
         GROUP BY session_id
         ORDER BY session_start DESC

@@ -12,7 +12,7 @@ const transparentPixel = Buffer.from(
 );
 
 export default async function handler(req, res) {
-  const { message_id, username } = req.query;
+  const { message_id, username, session_id } = req.query;
   console.log('Received tracking request:', req.query);
 
   if (!message_id || !username) {
@@ -20,13 +20,33 @@ export default async function handler(req, res) {
   } else {
     try {
       const client = await pool.connect();
-      const updateQuery = `
-        UPDATE messages
-        SET read_time = COALESCE(read_time, NOW()), read_count = read_count + 1
+      
+      // First, check if the message exists
+      const checkQuery = `
+        SELECT * FROM messages 
         WHERE message_id = $1 AND username = $2
       `;
-      const result = await client.query(updateQuery, [message_id, username]);
-      console.log(`Updated read status. Rows affected: ${result.rowCount}`);
+      const checkResult = await client.query(checkQuery, [message_id, username]);
+      
+      if (checkResult.rows.length === 0) {
+        // If the message doesn't exist, insert a new record
+        const insertQuery = `
+          INSERT INTO messages (session_id, message_id, username, sent_time, read_time, read_count)
+          VALUES ($1, $2, $3, NOW(), NOW(), 1)
+        `;
+        await client.query(insertQuery, [session_id || 'unknown_session', message_id, username]);
+        console.log(`Inserted new message record for ${message_id}`);
+      } else {
+        // If the message exists, update it
+        const updateQuery = `
+          UPDATE messages
+          SET read_time = COALESCE(read_time, NOW()), read_count = read_count + 1
+          WHERE message_id = $1 AND username = $2
+        `;
+        const result = await client.query(updateQuery, [message_id, username]);
+        console.log(`Updated read status. Rows affected: ${result.rowCount}`);
+      }
+      
       client.release();
     } catch (error) {
       console.error('Error updating read status:', error);
