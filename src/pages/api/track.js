@@ -1,20 +1,8 @@
-const fs = require('fs').promises;
-const path = require('path');
-
-const STATS_FILE = '/tmp/read_stats.json';
+import { kv } from '@vercel/kv';
 
 async function updateStats(username, messageId, sessionId) {
   const timestamp = new Date().toISOString();
-  let stats = {};
-
-  try {
-    const data = await fs.readFile(STATS_FILE, 'utf8');
-    stats = JSON.parse(data);
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      console.error('Error reading stats file:', error);
-    }
-  }
+  let stats = await kv.get('stats') || {};
 
   if (!stats[sessionId]) {
     stats[sessionId] = { totalSent: 0, totalRead: 0, messages: {} };
@@ -33,7 +21,7 @@ async function updateStats(username, messageId, sessionId) {
     stats[sessionId].messages[messageId].readTime = timestamp;
   }
 
-  await fs.writeFile(STATS_FILE, JSON.stringify(stats, null, 2));
+  await kv.set('stats', stats);
 }
 
 const track = async (req, res) => {
