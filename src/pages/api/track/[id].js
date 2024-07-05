@@ -6,10 +6,15 @@ const pool = new Pool({
   connectionString: process.env.POSTGRES_URL
 });
 
-const transparentPixel = Buffer.from(
-  'R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
-  'base64'
-);
+// Function to generate a colored square image
+function generateColoredSquare(size = 10, color = 'FF0000') {
+  const svg = `
+    <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#${color}"/>
+    </svg>
+  `;
+  return Buffer.from(svg);
+}
 
 export default async function handler(req, res) {
   const { username } = req.query;
@@ -40,9 +45,12 @@ export default async function handler(req, res) {
     }
   }
 
-  res.setHeader('Content-Type', 'image/gif');
+  // Generate a 10x10 red square
+  const image = generateColoredSquare(10, 'FF0000');
+
+  res.setHeader('Content-Type', 'image/svg+xml');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
-  res.send(transparentPixel);
+  res.send(image);
 }
