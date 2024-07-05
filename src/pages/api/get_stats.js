@@ -1,23 +1,21 @@
-import { Pool } from 'pg';
+const { Pool } = require('pg');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // Ensure you have this environment variable set in Vercel
-  ssl: {
-    rejectUnauthorized: false
-  }
+  connectionString: process.env.POSTGRES_URL
 });
 
-const getStats = async (req, res) => {
-  const client = await pool.connect();
-  try {
-    const result = await client.query('SELECT * FROM stats');
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.error('Error reading stats:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
-  } finally {
-    client.release();
+export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    try {
+      const client = await pool.connect();
+      const result = await client.query('SELECT * FROM stats');
+      client.release();
+      res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } else {
+    res.status(405).json({ error: 'Method Not Allowed' });
   }
-};
-
-export default getStats;
+}
