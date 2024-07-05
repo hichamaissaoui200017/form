@@ -1,38 +1,30 @@
 import { kv } from '@vercel/kv';
 
-async function updateStats(username, messageId, sessionId) {
-  const timestamp = new Date().toISOString();
-  let stats = await kv.get('stats') || {};
-
-  if (!stats[sessionId]) {
-    stats[sessionId] = { totalSent: 0, totalRead: 0, messages: {} };
-  }
-
-  if (!stats[sessionId].messages[messageId]) {
-    stats[sessionId].messages[messageId] = {
-      username,
-      sentTime: timestamp,
-      readTime: timestamp,
-      readCount: 1
-    };
-    stats[sessionId].totalRead++;
-  } else {
-    stats[sessionId].messages[messageId].readCount++;
-    stats[sessionId].messages[messageId].readTime = timestamp;
-  }
-
-  await kv.set('stats', stats);
-}
-
 const track = async (req, res) => {
-  const { username, messageId, sessionId } = req.query;
+  console.log('Track endpoint called');
+  console.log('Query parameters:', req.query);
+  console.log('Headers:', req.headers);
+
+  // Extract the real query parameters from the URL
+  const url = new URL(req.url, `https://${req.headers.host}`);
+  const realPath = url.pathname.split('/').pop();
+  const realParams = new URLSearchParams(realPath);
+
+  const username = realParams.get('username');
+  const messageId = realParams.get('messageId');
+  const sessionId = realParams.get('sessionId');
+
+  console.log('Extracted parameters:', { username, messageId, sessionId });
 
   if (!username || !messageId || !sessionId) {
+    console.log('Missing required parameters');
     return res.status(400).send('Missing required parameters');
   }
 
   try {
+    console.log('Updating stats...');
     await updateStats(username, messageId, sessionId);
+    console.log('Stats updated successfully');
   } catch (error) {
     console.error('Error updating stats:', error);
     return res.status(500).json({ error: 'Internal server error', details: error.message });
