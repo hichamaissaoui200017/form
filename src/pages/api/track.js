@@ -1,10 +1,13 @@
 const { Pool } = require('pg');
-const crypto = require('crypto');
-const path = require('path');
 
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL
 });
+
+const transparentPixel = Buffer.from(
+  'R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+  'base64'
+);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -25,12 +28,11 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   } else if (req.method === 'GET') {
-    const randomImageName = crypto.randomBytes(16).toString('hex') + '.png';
-    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Content-Type', 'image/gif');
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    res.sendFile(path.join(__dirname, 'images', randomImageName));
+    res.send(transparentPixel);
   } else {
     res.status(405).json({ error: 'Method Not Allowed' });
   }
