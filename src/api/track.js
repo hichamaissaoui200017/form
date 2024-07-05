@@ -1,19 +1,19 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
-const crypto = require('crypto');
 
 const STATS_FILE = '/tmp/read_stats.json';
 
-function generateUniqueId() {
-  return crypto.randomBytes(16).toString('hex');
-}
-
-function updateStats(username, messageId, sessionId) {
+async function updateStats(username, messageId, sessionId) {
   const timestamp = new Date().toISOString();
   let stats = {};
 
-  if (fs.existsSync(STATS_FILE)) {
-    stats = JSON.parse(fs.readFileSync(STATS_FILE, 'utf8'));
+  try {
+    const data = await fs.readFile(STATS_FILE, 'utf8');
+    stats = JSON.parse(data);
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      console.error('Error reading stats file:', error);
+    }
   }
 
   if (!stats[sessionId]) {
@@ -23,25 +23,31 @@ function updateStats(username, messageId, sessionId) {
   if (!stats[sessionId].messages[messageId]) {
     stats[sessionId].messages[messageId] = {
       username,
+      sentTime: timestamp,
       readTime: timestamp,
       readCount: 1
     };
     stats[sessionId].totalRead++;
   } else {
     stats[sessionId].messages[messageId].readCount++;
+    stats[sessionId].messages[messageId].readTime = timestamp;
   }
 
-  fs.writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2));
+  await fs.writeFile(STATS_FILE, JSON.stringify(stats, null, 2));
 }
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const { username, messageId, sessionId } = req.query;
 
   if (!username || !messageId || !sessionId) {
     return res.status(400).send('Missing required parameters');
   }
 
-  updateStats(username, messageId, sessionId);
+  try {
+    await updateStats(username, messageId, sessionId);
+  } catch (error) {
+    console.error('Error updating stats:', error);
+  }
 
   // Send a 1x1 transparent GIF
   const img = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
