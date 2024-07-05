@@ -12,28 +12,26 @@ const transparentPixel = Buffer.from(
 );
 
 export default async function handler(req, res) {
-  const { message_id, username, session_id } = req.query;
+  const { username } = req.query;
   console.log('Received tracking request:', req.query);
 
-  if (!message_id || !username) {
-    console.error('Missing message_id or username');
+  if (!username) {
+    console.error('Missing username');
   } else {
     try {
       const client = await pool.connect();
       console.log('Connected to database');
       
       const upsertQuery = `
-        INSERT INTO messages (session_id, message_id, username, sent_time, read_time, read_count)
-        VALUES ($1, $2, $3, NOW(), NOW(), 1)
-        ON CONFLICT (message_id)
+        INSERT INTO message_opens (username, open_time)
+        VALUES ($1, NOW())
+        ON CONFLICT (username)
         DO UPDATE SET 
-          read_time = NOW(), 
-          read_count = messages.read_count + 1,
-          username = EXCLUDED.username,
-          session_id = EXCLUDED.session_id
+          open_time = NOW(), 
+          open_count = message_opens.open_count + 1
       `;
-      console.log('Executing upsert query:', upsertQuery, [session_id || 'unknown_session', message_id, username]);
-      const upsertResult = await client.query(upsertQuery, [session_id || 'unknown_session', message_id, username]);
+      console.log('Executing upsert query:', upsertQuery, [username]);
+      const upsertResult = await client.query(upsertQuery, [username]);
       console.log('Upsert query result:', upsertResult);
       
       client.release();
