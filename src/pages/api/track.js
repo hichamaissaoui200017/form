@@ -36,7 +36,7 @@ async function updateStats(username, messageId, sessionId) {
   await fs.writeFile(STATS_FILE, JSON.stringify(stats, null, 2));
 }
 
-module.exports = async (req, res) => {
+const track = async (req, res) => {
   const { username, messageId, sessionId } = req.query;
 
   if (!username || !messageId || !sessionId) {
@@ -47,6 +47,7 @@ module.exports = async (req, res) => {
     await updateStats(username, messageId, sessionId);
   } catch (error) {
     console.error('Error updating stats:', error);
+    return res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 
   // Send a 1x1 transparent GIF
@@ -57,3 +58,5 @@ module.exports = async (req, res) => {
   res.setHeader('Expires', '0');
   res.send(img);
 };
+
+export default track;
