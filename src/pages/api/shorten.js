@@ -40,3 +40,6 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method Not Allowed' });
   }
 }
+console.log('Received URL to shorten:', url);
+console.log('Generated short code:', shortCode);
+console.log('Inserted/Updated short URL:', result.rows[0]);

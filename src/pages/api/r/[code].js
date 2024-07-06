@@ -25,3 +25,5 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+console.log('Received short code:', code);
+console.log('Query result:', result.rows);
