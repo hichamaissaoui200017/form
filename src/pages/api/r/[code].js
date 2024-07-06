@@ -8,16 +8,22 @@ const pool = new Pool({
 
 export default async function handler(req, res) {
   const { code } = req.query;
+  console.log('Received short code:', code);
 
   try {
     const client = await pool.connect();
     const query = 'SELECT long_url FROM short_urls WHERE short_code = $1';
+    console.log('Executing query:', query, [code]);
     const result = await client.query(query, [code]);
+    console.log('Query result:', result.rows);
     client.release();
 
     if (result.rows.length > 0) {
-      res.redirect(result.rows[0].long_url);
+      const longUrl = result.rows[0].long_url;
+      console.log('Redirecting to:', longUrl);
+      res.redirect(301, longUrl);
     } else {
+      console.log('Short URL not found');
       res.status(404).json({ error: 'Short URL not found' });
     }
   } catch (error) {
@@ -25,5 +31,3 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
-console.log('Received short code:', code);
-console.log('Query result:', result.rows);
