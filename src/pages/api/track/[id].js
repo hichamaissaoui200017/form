@@ -16,8 +16,8 @@ function generateColoredSquare(size = 10, color = 'FF0000') {
 }
 
 export default async function handler(req, res) {
+  console.log('Received tracking request:', req.url, req.query);
   const { username } = req.query;
-  console.log('Received tracking request:', req.query);
 
   if (!username) {
     console.error('Missing username');
@@ -35,10 +35,11 @@ export default async function handler(req, res) {
       DO UPDATE SET 
         open_time = NOW(), 
         open_count = message_opens.open_count + 1
+      RETURNING *
     `;
     console.log('Executing upsert query:', upsertQuery, [username]);
     const upsertResult = await client.query(upsertQuery, [username]);
-    console.log('Upsert query result:', upsertResult);
+    console.log('Upsert query result:', upsertResult.rows[0]);
     
     client.release();
 
