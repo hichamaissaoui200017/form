@@ -14,11 +14,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'URL is required' });
     }
 
+    console.log('Received URL to shorten:', url);
+
     try {
       const client = await pool.connect();
 
       // Generate a short code
       const shortCode = crypto.randomBytes(4).toString('hex');
+      console.log('Generated short code:', shortCode);
 
       const query = `
         INSERT INTO short_urls (short_code, long_url)
@@ -30,6 +33,8 @@ export default async function handler(req, res) {
       
       client.release();
 
+      console.log('Inserted/Updated short URL:', result.rows[0]);
+
       const shortUrl = `https://chess.eliteofferz.store/r/${result.rows[0].short_code}`;
       res.status(200).json({ shortUrl });
     } catch (error) {
@@ -40,6 +45,3 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method Not Allowed' });
   }
 }
-console.log('Received URL to shorten:', url);
-console.log('Generated short code:', shortCode);
-console.log('Inserted/Updated short URL:', result.rows[0]);

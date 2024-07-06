@@ -6,7 +6,6 @@ const pool = new Pool({
   connectionString: process.env.POSTGRES_URL
 });
 
-// Function to generate a colored square image
 function generateColoredSquare(size = 10, color = 'FF0000') {
   const svg = `
     <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
@@ -22,37 +21,36 @@ export default async function handler(req, res) {
 
   if (!username) {
     console.error('Missing username');
-  } else {
-    try {
-      const client = await pool.connect();
-      console.log('Connected to database');
-      
-      const upsertQuery = `
-        INSERT INTO message_opens (username, open_time, open_count)
-        VALUES ($1, NOW(), 1)
-        ON CONFLICT (username)
-        DO UPDATE SET 
-          open_time = NOW(), 
-          open_count = message_opens.open_count + 1
-      `;
-      console.log('Executing upsert query:', upsertQuery, [username]);
-      const upsertResult = await client.query(upsertQuery, [username]);
-      console.log('Upsert query result:', upsertResult);
-      
-      client.release();
-    } catch (error) {
-      console.error('Error in tracking:', error);
-    }
+    return res.status(400).json({ error: 'Missing username' });
   }
 
-  // Generate a 10x10 red square
-  const image = generateColoredSquare(10, 'FF0000');
+  try {
+    const client = await pool.connect();
+    console.log('Connected to database');
+    
+    const upsertQuery = `
+      INSERT INTO message_opens (username, open_time, open_count)
+      VALUES ($1, NOW(), 1)
+      ON CONFLICT (username)
+      DO UPDATE SET 
+        open_time = NOW(), 
+        open_count = message_opens.open_count + 1
+    `;
+    console.log('Executing upsert query:', upsertQuery, [username]);
+    const upsertResult = await client.query(upsertQuery, [username]);
+    console.log('Upsert query result:', upsertResult);
+    
+    client.release();
 
-  res.setHeader('Content-Type', 'image/svg+xml');
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.send(image);
+    const image = generateColoredSquare(10, 'FF0000');
+
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.send(image);
+  } catch (error) {
+    console.error('Error in tracking:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 }
-console.log('Received tracking request:', req.query);
-console.log('Upsert query result:', upsertResult);
