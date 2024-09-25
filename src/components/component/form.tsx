@@ -1,16 +1,15 @@
 "use client"
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Noto_Kufi_Arabic } from "next/font/google";
 import { sendToTelegram } from "@/lib/sendToTelegram";
 import { pageview } from "@/lib/pageview";
-import React, { useState, useEffect } from "react";
-import getUserIP from "../../lib/getUserIP";
-//import { sha256 } from "js-sha256";
-//import * as fbq from "../../lib/fpixel";
+import getUserIP from "@/lib/getUserIP";
+import ReactConfetti from 'react-confetti';
+import { useRouter } from 'next/navigation';
 
-//const additionalData = {};
 const eventID: string = crypto.randomUUID();
 const eventID2: string = crypto.randomUUID();
 const rubik = Noto_Kufi_Arabic({
@@ -18,18 +17,50 @@ const rubik = Noto_Kufi_Arabic({
   weight: ["500", "600", "700"],
 });
 
-export function Form() {
-  useEffect(() => {
-    pageview(eventID2);
-  }, []);
+interface PopupProps {
+  onClose: () => void;
+}
 
+const Popup: React.FC<PopupProps> = ({ onClose }) => {
+  const router = useRouter();
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-xl text-center">
+        <h2 className="text-2xl font-bold mb-4">تم إرسال البيانات بنجاح!</h2>
+        <p className="mb-6">اختر منصة للمتابعة</p>
+        <div className="flex justify-center space-x-4">
+          <Button
+            onClick={() => router.push('https://www.instagram.com/eliteofferz/')}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+          >
+            Instagram
+          </Button>
+          <Button
+            onClick={() => router.push('https://www.facebook.com/EliteOfferz')}
+            className="bg-blue-600 text-white"
+          >
+            Facebook
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export function Form() {
   const [formData, setFormData] = useState({
     facebook: "",
     chessUsername: "",
   });
-
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    pageview(eventID2);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -47,11 +78,11 @@ export function Form() {
         setAvatarUrl(data.avatar);
       } else {
         console.error("Error fetching avatar:", response.status);
-        setAvatarUrl("/placeholder-avatar.png"); // Default placeholder if error
+        setAvatarUrl("/placeholder-avatar.png");
       }
     } catch (error) {
       console.error("Error fetching avatar:", error);
-      setAvatarUrl("/placeholder-avatar.png"); // Default placeholder if error
+      setAvatarUrl("/placeholder-avatar.png");
     } finally {
       setIsLoadingAvatar(false);
     }
@@ -64,7 +95,6 @@ export function Form() {
     const Time = new Date().toLocaleString('en-US', { timeZone: 'Africa/Algiers' });
     const userIp: string = (await getUserIP()).toString();
 
-    // Create message object (you can add more fields as needed)
     const messageData = {
       profile: process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID,
       IP: userIp,
@@ -74,10 +104,8 @@ export function Form() {
       chessUsername: formData.chessUsername, 
     };
 
-    // Convert message object to JSON string
-    const message = JSON.stringify(messageData, null, 2); // 2 spaces for indentation
+    const message = JSON.stringify(messageData, null, 2);
 
-    //const email: string = formData.email || ''; // Assuming you're not using email anymore
     const messageCompleteRegistration = {
       "data": [
         {
@@ -95,13 +123,18 @@ export function Form() {
       "test_event_code": "TEST81446" 
     };
 
-
-    console.log("Sending this message to Telegram:", message); // Log the JSON message
+    console.log("Sending this message to Telegram:", message);
     await sendToTelegram(message, messageCompleteRegistration, eventID);
-    alert('تم إرسال البيانات بنجاح!');
+    
+    setShowConfetti(true);
+    setShowPopup(true);
+    
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 7000);
+
     setFormData({ facebook: '', chessUsername: '' });
     setAvatarUrl('');
-    window.location.href = 'https://www.facebook.com/EliteOfferz'; 
   };
 
   return (
@@ -112,17 +145,43 @@ export function Form() {
         backgroundImage: "url('/bg.svg')",
       }}
     >
+      {showConfetti && (
+        <div style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          width: '100%', 
+          height: '100%', 
+          zIndex: 9999,
+          pointerEvents: 'none' // This allows clicks to pass through
+        }}>
+          <ReactConfetti
+            width={window.innerWidth}
+            height={window.innerHeight}
+            recycle={false}
+            numberOfPieces={400}
+            gravity={0.25}
+            wind={0.01}
+            colors={[
+              '#ddc203', '#305cd8', '#ff6b6b', '#4ecdc4', '#45b7d1',
+              '#ff9ff3', '#feca57', '#54a0ff', '#5f27cd', '#ff6b6b',
+              '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd'
+            ]}
+            confettiSource={{x: 0, y: 0, w: window.innerWidth, h: 0}}
+          />
+        </div>
+      )}
+      {showPopup && <Popup onClose={() => setShowPopup(false)} />}
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-lg px-8 py-6 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-800"
         dir="rtl"
       >
-        {/* Logo - Add this section */}
-        <div className="flex justify-center mb-6"> {/* Adjust margin as needed */}
+        <div className="flex justify-center mb-6">
           <img 
-            src="/logo.png"  // Replace with your logo path
+            src="/logo.png"
             alt="Your Logo" 
-            className="w-48 h-auto" // Adjust size as needed 
+            className="w-48 h-auto"
           />
         </div>
         <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100"></h2>
@@ -153,7 +212,7 @@ export function Form() {
           <Input
             id="chessUsername"
             name="chessUsername"
-            placeholder="أدخل اسم اسم المستخدم الخاص بك في chess.com"
+            placeholder="أدخل إسم المستخدم الخاص بك في chess.com"
             required
             type="text"
             value={formData.chessUsername}
@@ -167,27 +226,26 @@ export function Form() {
           </p>
         </div>
 
-        {/* Avatar Display */}
         <div className="flex justify-center">
-      {avatarUrl ? (
-        <img
-          src={avatarUrl}
-          alt="Chess.com Avatar"
-          className="rounded-full w-24 h-24 shadow-md"
-        />
-      ) : (
-        <img
-          src="/placeholder-avatar.png"
-          alt="Placeholder Avatar"
-          className="rounded-full w-24 h-24 shadow-md"
-        />
-      )}
-    </div>
-    <p className="text-base text-gray-500 dark:text-gray-400">
-            ( لا تنسى ترك تعليق على المنشور.)
-          </p>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Chess.com Avatar"
+              className="rounded-full w-24 h-24 shadow-md"
+            />
+          ) : (
+            <img
+              src="/placeholder-avatar.png"
+              alt="Placeholder Avatar"
+              className="rounded-full w-24 h-24 shadow-md"
+            />
+          )}
+        </div>
+        <p className="text-base text-red-500 dark:text-gray-400">
+          ( لا تنسى ترك تعليق على المنشور.)
+        </p>
         <Button className="w-full" type="submit">
-          أدخل للفوز والترقية!
+          أدخل للمشاركة للفوز
         </Button>
       </form>
     </div>
