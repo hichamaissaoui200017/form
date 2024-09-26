@@ -27,7 +27,7 @@ const Popup: React.FC<PopupProps> = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-8 rounded-lg shadow-xl text-center">
-        <h2 className="text-2xl font-bold mb-4">تم إرسال البيانات بنجاح!</h2>
+        <h2 className="text-2xl font-bold mb-4">تم إرسال البيانات بنجاح</h2>
         <p className="mb-6">اختر منصة للمتابعة</p>
         <div className="flex justify-center space-x-4">
           <Button
@@ -120,7 +120,6 @@ export function Form() {
           }
         }
       ],
-      "test_event_code": "TEST81446" 
     };
 
     console.log("Sending this message to Telegram:", message);
@@ -245,8 +244,8 @@ export function Form() {
           ( لا تنسى ترك تعليق على المنشور.)
         </p>
         <Button className="w-full" type="submit">
-          أدخل للمشاركة للفوز
-        </Button>
+          شارك في السحب
+          !</Button>
       </form>
     </div>
   );
